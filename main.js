@@ -26,17 +26,33 @@ window.addEventListener("DOMContentLoaded", () => {
   const marker = L.marker([34.0614, -118.08162]).addTo(mymap);
 
   const getData = async () => {
-    const newFile = await fetch(
-      `https://geo.ipify.org/api/v1?apiKey=at_5n2Zv7Lr2vzzMP5c9s1xS9aXkvFg7&ipAddress=${inputField.value}`
-    );
-    const res = await newFile.json();
-    ipText.innerHTML = res.ip;
-    locationText.innerHTML = res.location.city;
+    let newFile;
+    let res;
+    if (inputField.value.match(/[0-9]/)) {
+      newFile = await fetch(
+        `https://geo.ipify.org/api/v1?apiKey=at_5n2Zv7Lr2vzzMP5c9s1xS9aXkvFg7&ipAddress=${inputField.value}`
+      );
+      res = await newFile.json();
+      locationText.innerHTML = res.location.city;
+      mymap.setView([res.location.lat, res.location.lng], 13);
+      marker.setLatLng([res.location.lat, res.location.lng]);
+      ipText.innerHTML = res.ip;
+    } else {
+      newFile = await fetch(
+        `https://geo.ipify.org/api/v2/country?apiKey=at_5n2Zv7Lr2vzzMP5c9s1xS9aXkvFg7&ipAddress=8.8.8.8&domain=${inputField.value}`
+      );
+      res = await newFile.json();
+      locationText.innerHTML = res.location.country;
+      ipText.innerHTML = res.ip;
+      const idFile = await fetch(
+        `https://geo.ipify.org/api/v1?apiKey=at_5n2Zv7Lr2vzzMP5c9s1xS9aXkvFg7&ipAddress=${ipText.innerHTML}`
+      );
+      const idRes = await idFile.json();
+      mymap.setView([idRes.location.lat, idRes.location.lng], 13);
+      marker.setLatLng([idRes.location.lat, idRes.location.lng]);
+    }
     timezoneText.innerHTML = res.location.timezone;
     ispText.innerHTML = res.isp;
-    mymap.setView([res.location.lat, res.location.lng], 13);
-    marker.setLatLng([res.location.lat, res.location.lng]);
-    console.log(res);
   };
 
   checkBtn.addEventListener("click", () => {
